@@ -12,7 +12,7 @@ def eof(f):
 
 
 while True:
-    with open("./video1.cvb", "rb") as f:
+    with open("./color_test.cvb", "rb") as f:
 
         V_size = unpack("H", f.read(2))[0]
         H_size = unpack("H", f.read(2))[0]
@@ -26,13 +26,26 @@ while True:
             for l_idx in range(0, V_size):
                 for c_idx in range(0, H_size):
                     if color_mode == 0:
+
                         chunk = f.read(1)
                         if chunk == b"":
                             EOF = True
                             break
                         R = unpack("B", chunk)[0]
-                        G = unpack("B", f.read(1))[0]
-                        B = unpack("B", f.read(1))[0]
+
+                        chunk = f.read(1)
+                        if chunk == b"":
+                            EOF = True
+                            break
+                        G = unpack("B", chunk)[0]
+
+                        chunk = f.read(1)
+                        if chunk == b"":
+                            EOF = True
+                            break
+                        B = unpack("B", chunk)[0]
+                        
+                        # I have no idea where the mixup with the RGB order happened, so I'll just fix it here
                         display.pixel(c_idx, l_idx, colour(R, G, B))
 
                     else:

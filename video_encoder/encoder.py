@@ -1,12 +1,9 @@
-# Encodes any vídeo into a square lower resolution version of itself and saves it to a txt file
-# The output file has one frame per line with each pixel value separeted by a comma
-
 import cv2
-from struct import pack, unpack
+from struct import pack
 
-video = cv2.VideoCapture("./assets/bad_apple_r5.mp4")
+video = cv2.VideoCapture("./assets/color_test.mp4")
 
-color_mode = 2
+color_mode = 0
 
 frame_number = 0
 calculated_dimensions = False
@@ -15,7 +12,7 @@ ycrop = 0
 padding = 0  # if the crop results are not integer
 
 try:
-    with open("video1.cvb", "wb") as f:
+    with open("color_test.cvb", "wb") as f:
         while True:
             ok, frame = video.read()
             if not ok:
@@ -48,12 +45,6 @@ try:
             ]  # make the image square by cropping the sides
             frame = cv2.resize(frame, (240, 240))  # resize to the display's resolution
 
-            # if not (color_mode == 0):
-            #     frame = frame.mean(axis=2)
-            #     for i in range(0, len(frame)):
-            #         for j in range(0, len(frame[i])):
-            #             frame[i, j] = int(frame[i, j])
-
             f.write(pack("H", 240))
             f.write(pack("H", 240))
             f.write(pack("B", color_mode))
@@ -62,6 +53,7 @@ try:
                 for idx, pixel in enumerate(line):
                     match color_mode:
                         case 0:  # RGB
+                            # TODO: There's something very wrong here. Debug with solid color images
                             f.write(pack("B", pixel[0]))
                             f.write(pack("B", pixel[1]))
                             f.write(pack("B", pixel[2]))
@@ -71,10 +63,7 @@ try:
 
                         case 2:  # Black and White
                             f.write(pack("B", 255 if int(pixel.mean()) >= 127 else 0))
+        print()
 
 except OSError as err:
     print("Could not create the output file: ", err)
-
-
-# with open("./video.cib", "rb") as f:
-#     print(unpack("B", f.read(1))[0])
