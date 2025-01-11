@@ -3,7 +3,7 @@
 
 import cv2
 
-video = cv2.VideoCapture("./assets/bad_apple_r2.mp4")
+video = cv2.VideoCapture("./assets/bad_apple_r5.mp4")
 
 color = False
 binary = True
