@@ -1,25 +1,51 @@
 import utime
+from struct import unpack
 import LCD
+import os
 from colour import colour
 
 display = LCD.LCD_1inch3()
 
+
+def eof(f):
+    return os.fstat(f.fileno()).st_size == f.tell()
+
+
 while True:
-    with open("./video.txt", "r") as f:
+    with open("./video1.cvb", "rb") as f:
 
-        line_idx = 0
-        for line in f:
-            for col_idx in range(0, len(line)):
-                if line[col_idx] == "1":
-                    display.pixel(col_idx, line_idx, colour(255, 255, 255))
-                else:
-                    display.pixel(col_idx, line_idx, colour(0, 0, 0))
+        V_size = unpack("H", f.read(2))[0]
+        H_size = unpack("H", f.read(2))[0]
+        color_mode = unpack("B", f.read(1))[0]
 
-            line_idx += 1
+        EOF = False
 
-            if line_idx >= 240:
-                line_idx = 0
-                display.show()
-            
-            print(f"Lines read: {line_idx}   ", end="\r")
+        print("Lendo!")
 
+        while not EOF:
+            for l_idx in range(0, V_size):
+                for c_idx in range(0, H_size):
+                    if color_mode == 0:
+                        chunk = f.read(1)
+                        if chunk == b"":
+                            EOF = True
+                            break
+                        R = unpack("B", chunk)[0]
+                        G = unpack("B", f.read(1))[0]
+                        B = unpack("B", f.read(1))[0]
+                        display.pixel(c_idx, l_idx, colour(R, G, B))
+
+                    else:
+                        chunk = f.read(1)
+                        if chunk == b"":
+                            EOF = True
+                            break
+                        pixel = unpack("B", chunk)[0]
+                        display.pixel(c_idx, l_idx, colour(pixel, pixel, pixel))
+                if EOF:
+                    break
+
+                print(f"Lines read: {l_idx+1}   ", end="\r")
+
+            print("")
+            display.show()
