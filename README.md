@@ -9,4 +9,8 @@ In order in wich they appear in the file
   - 1 == Grayscale (one byte per pixel)
   - 2 == Black and White (one bit per pixel)
 
-- The rest is the actual video. The data will appear **line by line** going **left to right**.
+- The rest is the actual video. The data will appear **frame by frame**, **line by line** going **left to right**.
+
+## External libraries disclaimer
+
+Both `colour.py` and `LCD.py` are micropython library files not made by me, files which I obtained through a course from makerhero.com, so, unfortunately, I am not sure about who the original autors are.

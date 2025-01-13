@@ -1,9 +1,11 @@
 import cv2
+from numpy import ndarray
+from typing import BinaryIO
 from struct import pack
 
-video = cv2.VideoCapture("./assets/color_test.mp4")
+video = cv2.VideoCapture("./assets/bad_apple_r3.mp4")
 
-color_mode = 0
+color_mode = 2
 
 frame_number = 0
 calculated_dimensions = False
@@ -12,7 +14,8 @@ ycrop = 0
 padding = 0  # if the crop results are not integer
 
 try:
-    with open("color_test.cvb", "wb") as f:
+    f: BinaryIO
+    with open("./bad_apple_r3.cvb", "wb") as f:
         while True:
             ok, frame = video.read()
             if not ok:
@@ -43,26 +46,44 @@ try:
                 ycrop + padding : len(frame) - ycrop,
                 xcrop + padding : len(frame[0]) - xcrop,
             ]  # make the image square by cropping the sides
-            frame = cv2.resize(frame, (240, 240))  # resize to the display's resolution
+            frame: ndarray = cv2.resize(
+                frame, (240, 240)
+            )  # resize to the display's resolution
 
             f.write(pack("H", 240))
             f.write(pack("H", 240))
             f.write(pack("B", color_mode))
 
-            for line in frame:
-                for idx, pixel in enumerate(line):
-                    match color_mode:
-                        case 0:  # RGB
-                            # TODO: There's something very wrong here. Debug with solid color images
-                            f.write(pack("B", pixel[0]))
-                            f.write(pack("B", pixel[1]))
-                            f.write(pack("B", pixel[2]))
+            if color_mode == 2:
+                buffer = 0
+                shift_counter = 0
+                for line in frame:
+                    for idx, pixel in enumerate(line):
+                        buffer <<= 1
+                        buffer += 1 if int(pixel.mean()) >= 127 else 0
+                        shift_counter += 1
+                        if shift_counter == 8:
+                            f.write(pack("B", buffer))
+                            shift_counter = 0
+                            buffer = 0
+                            
+                if shift_counter != 0:
+                    buffer <<= 8 - shift_counter
+                    f.write(pack("B", buffer))
 
-                        case 1:  # Grayscale
-                            f.write(pack("B", int(pixel.mean())))
+            else:
+                for line in frame:
+                    for idx, pixel in enumerate(line):
+                        match color_mode:
+                            case 0:  # RGB
+                                # TODO: There's something very wrong here. Debug with solid color images
+                                f.write(pack("B", pixel[0]))
+                                f.write(pack("B", pixel[1]))
+                                f.write(pack("B", pixel[2]))
 
-                        case 2:  # Black and White
-                            f.write(pack("B", 255 if int(pixel.mean()) >= 127 else 0))
+                            case 1:  # Grayscale
+                                f.write(pack("B", int(pixel.mean())))
+
         print()
 
 except OSError as err:
