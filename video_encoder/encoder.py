@@ -150,12 +150,12 @@ def main():
                         for pixel in line:
                             match color_mode:
                                 case "0":  # RGB
-                                    # TODO: There's something very wrong here. Debug with solid color images
-                                    f.write(pack("B", pixel[0]))
+                                    # pixel[0] == blue, [1] == green, [2] == red
+                                    f.write(pack("B", pixel[2]))
                                     bytes_written += 1
                                     f.write(pack("B", pixel[1]))
                                     bytes_written += 1
-                                    f.write(pack("B", pixel[2]))
+                                    f.write(pack("B", pixel[0]))
                                     bytes_written += 1
 
                                 case "1":  # Grayscale

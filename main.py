@@ -5,7 +5,7 @@ from colour import colour
 display = LCD.LCD_1inch3()
 
 while True:
-    with open("./color_test.cvb", "rb") as f:
+    with open("./bad_apple.cvb", "rb") as f:
 
         V_size = unpack("H", f.read(2))[0]
         H_size = unpack("H", f.read(2))[0]
