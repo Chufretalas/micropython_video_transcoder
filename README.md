@@ -1,4 +1,4 @@
-# Micropython Video Tanscoder
+# Micropython Video Transcoder
 
 Two programs that encode a video into a special binary file, which can later be read and displayed by a microcontroller running micropython.
 
